@@ -5,7 +5,7 @@
 #include <iostream>
 #include <vector>
 
-#include <Tensor.hpp>
+#include <Tensor/Tensor.hpp>
 #include <WeightMap.hpp>
 #include <Optimizer.hpp>
 #include <Loss.hpp>
@@ -20,6 +20,7 @@ double gt_function(double x){
     return 15 * x + 3;
 }
 
+// TODO Implement Tensor Matrix
 int main(){
     // Hyper Parameters
     double learning_rate = 0.0001;
@@ -59,9 +60,11 @@ int main(){
         total_loss->data /= 20;  // Division by N
         total_loss->backward();
 
-        std::cout << "total_loss: " << total_loss->data << ", ";
-        std::cout << "weight: " << weight.data << ", ";
-        std::cout << "bias: " << bias.data << std::endl;
+        if(epoch % 10 == 0){
+            std::cout << "total_loss: " << total_loss->data << ", ";
+            std::cout << "weight: " << weight.data << ", ";
+            std::cout << "bias: " << bias.data << std::endl;
+        }
 
         optim.step();
         total_loss->flush();  // Release Memory

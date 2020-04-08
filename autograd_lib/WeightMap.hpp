@@ -7,7 +7,7 @@
 
 #include <map>
 #include <vector>
-#include <Tensor.hpp>
+#include <Tensor/Tensor.hpp>
 
 template <typename T>
 class WeightMap{

@@ -179,6 +179,4 @@ Tensor<T>& Tensor<T>::operator*(Tensor<T> & operand) {
     return *nextTensor;
 }
 
-//TODO Implement Division
-
 #endif //AUTOGRADCPP_TENSOR_HPP

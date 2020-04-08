@@ -5,7 +5,7 @@
 #ifndef AUTOGRADCPP_OPTIMIZER_HPP
 #define AUTOGRADCPP_OPTIMIZER_HPP
 
-#include <Tensor.hpp>
+#include <Tensor/Tensor.hpp>
 #include <vector>
 #include <WeightMap.hpp>
 

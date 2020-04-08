@@ -10,7 +10,7 @@ Example code can be viewed here -> [ExampleCode](https://github.com/litcoderr/Au
 
 #### Initialize
 ```c++
-#include <Tensor.hpp>
+#include <Tensor/Tensor.hpp>
 
 Tensor<double>& my_tensor1 = *new Tensor<double>(); // default value 0
 Tensor<double>& my_tensor2 = *new Tensor<double>(3.2); // value only with default name as ""
@@ -41,7 +41,7 @@ head_node_of_graph.flush(); // will flush all child node memories
 
 #### Initialize
 ```c++
-#include <Tensor.hpp>
+#include <Tensor/Tensor.hpp>
 
 Variable<double>& my_tensor1 = *new Variable<double>(); // default value 0
 Variable<double>& my_tensor2 = *new Variable<double>(3.2); // value only with default name as ""
@@ -55,7 +55,7 @@ Variable<double>& my_tensor3 = *new Variable<double>(3.2, "Weights"); // value o
 #### Initialize
 ```c++
 #include <WeightMap.hpp>
-#include <Tensor.hpp>
+#include <Tensor/Tensor.hpp>
 
 // Initialize weights
 Variable<double>& weight1 = *new Variable<double>(1.1, "W1"); 
@@ -80,7 +80,7 @@ Tensor<float>& weight_i_want = weightMap.get("Weight");  // use key std::string 
 #include <Optimizer.hpp>
 
 #include <WeightMap.hpp>
-#include <Tensor.hpp>
+#include <Tensor/Tensor.hpp>
 WeightMap<double>& weightMap = *new WeightMap<double>(weight_list);  // Initialize by passing in weight list
 double learning_rate = 0.0001;
 

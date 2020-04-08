@@ -5,7 +5,7 @@
 #ifndef AUTOGRADCPP_LOSS_HPP
 #define AUTOGRADCPP_LOSS_HPP
 
-#include <Tensor.hpp>
+#include <Tensor/Tensor.hpp>
 
 template <typename T>
 class L2Loss {
