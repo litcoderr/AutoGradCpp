@@ -28,7 +28,7 @@ int main(){
     Optimizer<float> optim(&weightMap, learning_rate);
 
     //Compute Through dynamic graph
-    Tensor<float>& input = *new Tensor<float>(5);
+    Tensor<float>& input = *new Tensor<float>(5, false);
     Tensor<float>& result = model(input, weightMap);
 
     //BackPropagate
@@ -36,5 +36,9 @@ int main(){
 
     //Step
     optim.step();
+
+    // Clear Memory
+    result.flush();
+
     return 0;
 }

@@ -46,13 +46,17 @@ class Tensor{
 public:
     T data;  // data
     T grad;  // gradient
+    bool is_varialbe;
     std::stack<Heading<T>*> op_stack; // head
 
-    Tensor();
-    Tensor(T data);
+    Tensor(); // Variable
+    Tensor(T data);  // Variable
+    Tensor(T data, bool is_variable);
+    ~Tensor();
 
     void backward();  // default backward called from head node
     void backward(T prev_grad);
+    void flush();  // clear all memory
 
     // Operator Overloading
     Tensor<T>& operator+(Tensor<T>& operand);  // Addition
@@ -70,15 +74,24 @@ Heading<T>::Heading(Tensor<T>* from, Tensor<T>* adj, Tensor<T>* parent, Operator
 
 // Tensor Definition
 template <typename T>
-Tensor<T>::Tensor(){
-    this->data = 0;
-    this->grad = 0;
-}
+Tensor<T>::Tensor() : Tensor(0, true){}
 
 template <typename T>
-Tensor<T>::Tensor(T data){
+Tensor<T>::Tensor(T data) : Tensor(data, true){}
+
+template <typename T>
+Tensor<T>::Tensor(T data, bool is_variable){
     this->data = data;
     this->grad = 0;
+    this->is_varialbe = is_variable;
+}
+
+template<typename T>
+Tensor<T>::~Tensor(){
+    while(!this->op_stack.empty()){
+        delete this->op_stack.top();
+        this->op_stack.pop();
+    }
 }
 
 template <typename T>
@@ -97,10 +110,19 @@ void Tensor<T>::backward(T grad){
     }
 }
 
+template <typename T>
+void Tensor<T>::flush() {
+    while(!this->op_stack.empty()){
+        Heading<T>* heading = this->op_stack.top();
+        heading->from->flush();
+    }
+    delete this;
+}
+
 // Operator Overloading
 template <typename T>
 Tensor<T>& Tensor<T>::operator+(Tensor<T> & operand) {
-    Tensor<T>* nextTensor = new Tensor<T>(this->data+operand.data);
+    Tensor<T>* nextTensor = new Tensor<T>(this->data+operand.data, false);
     Heading<T>* head_1 = new Heading<T>(this, &operand, nextTensor, ADD);
     Heading<T>* head_2 = new Heading<T>(&operand, this, nextTensor, ADD);
 
@@ -112,7 +134,7 @@ Tensor<T>& Tensor<T>::operator+(Tensor<T> & operand) {
 
 template <typename T>
 Tensor<T>& Tensor<T>::operator-(Tensor<T> & operand) {
-    Tensor<T>* nextTensor = new Tensor<T>(this->data-operand.data);
+    Tensor<T>* nextTensor = new Tensor<T>(this->data-operand.data, false);
     Heading<T>* head_1 = new Heading<T>(this, &operand, nextTensor, SUBTRACT);
     Heading<T>* head_2 = new Heading<T>(&operand, this, nextTensor, SUBTRACT);
 
@@ -124,7 +146,7 @@ Tensor<T>& Tensor<T>::operator-(Tensor<T> & operand) {
 
 template <typename T>
 Tensor<T>& Tensor<T>::operator*(Tensor<T> & operand) {
-    Tensor<T>* nextTensor = new Tensor<T>(this->data*operand.data);
+    Tensor<T>* nextTensor = new Tensor<T>(this->data*operand.data, false);
     Heading<T>* head_1 = new Heading<T>(this, &operand, nextTensor, MULTIPLY);
     Heading<T>* head_2 = new Heading<T>(&operand, this, nextTensor, MULTIPLY);
 
