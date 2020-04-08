@@ -3,10 +3,11 @@
 //
 
 #include <iostream>
-#include <Tensor/Tensor.hpp>
+#include <Tensor.hpp>
 
 int main(){
-    Tensor<float>* a = new Tensor<float>(3.2);
-    Tensor<float>* b = new Tensor<float>(2.8);
+    Tensor<float>* a = new Tensor<float>(3.1);
+    Tensor<float>* b = new Tensor<float>(2.5);
+    Tensor<float>& c = *a + (*a + *b);
     return 0;
 }
