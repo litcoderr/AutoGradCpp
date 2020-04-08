@@ -44,6 +44,7 @@ int main(){
 
     for(int epoch=0;epoch<EPOCH;epoch++){
         bool first = true;
+        Tensor<double>* total_loss = new Tensor<double>();
         for(std::pair<double, double> data: dataset){
             //Compute Through dynamic graph
             Tensor<double>& x = *new Tensor<double>(data.first);
@@ -52,16 +53,18 @@ int main(){
             Tensor<double>& y_ = model(x, weightMap);
 
             Tensor<double>& loss = lossModule.forward(y_, y); // output, target
-            loss.backward();
-            if(first){
-                std::cout << "loss: " << loss.data << ", ";
-                std::cout << "weight: " << weight.data << ", ";
-                std::cout << "bias: " << bias.data << "\n";
-                first = false;
-            }
-            optim.step();
-            loss.flush();
+
+            total_loss = &(*total_loss + loss);
         }
+        total_loss->data /= 20;  // Division by N
+        total_loss->backward();
+
+        std::cout << "total_loss: " << total_loss->data << ", ";
+        std::cout << "weight: " << weight.data << ", ";
+        std::cout << "bias: " << bias.data << std::endl;
+
+        optim.step();
+        total_loss->flush();  // Release Memory
     }
     return 0;
 }
