@@ -28,6 +28,13 @@ Tensor<double>& result = my_tensor1 + my_tensor2 - my_tensor3 * my_tensor4
 result.backward(); // EASY. check each tensor's .grad element for gradient value
 ```
 
+#### Flush Memory
+```c++
+Tensor<double>& head_node_of_graph;
+
+head_node_of_graph.flush(); // will flush all child node memories
+```
+
 ### Variable
 - Inherits Tensor
 - Not Destructible node when flushing memory recursively by default. (Used for weights)
