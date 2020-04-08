@@ -15,10 +15,9 @@ Tensor<float>& model(Tensor<float>& input, WeightMap<float>& weights){
 }
 
 int main(){
-    //TODO Tensor / Variable
     //Initialize Weights
-    Tensor<float>& weight = *new Tensor<float>(2, "Weight");
-    Tensor<float>& bias = *new Tensor<float>(3, "Bias");
+    Variable<float>& weight = *new Variable<float>(2, "Weight");  // Not Distructable
+    Variable<float>& bias = *new Variable<float>(3, "Bias");  // Not Distructable
     //Initialize WeightMap
     std::vector<Tensor<float>*> weightList = {&weight, &bias};
     WeightMap<float>& weightMap = *new WeightMap<float>(weightList);

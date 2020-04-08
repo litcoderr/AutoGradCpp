@@ -66,6 +66,14 @@ public:
 };
 
 template <typename T>
+class Variable: public Tensor<T>{
+public:
+    Variable();
+    Variable(T data);
+    Variable(T data, std::string name);
+};
+
+template <typename T>
 Heading<T>::Heading(Tensor<T>* from, Tensor<T>* adj, Tensor<T>* parent, Operator op) {
     this->from = from;
     this->adj = adj;
@@ -76,15 +84,26 @@ Heading<T>::Heading(Tensor<T>* from, Tensor<T>* adj, Tensor<T>* parent, Operator
 // Tensor Definition
 template <typename T>
 Tensor<T>::Tensor() : Tensor(0, ""){}
+template <typename T>
+Variable<T>::Variable() : Variable(0, ""){}
 
 template <typename T>
 Tensor<T>::Tensor(T data) : Tensor(data, ""){}
+template <typename T>
+Variable<T>::Variable(T data) : Variable(data, ""){}
 
 template <typename T>
 Tensor<T>::Tensor(T data, std::string name) {
     this->data = data;
     this->grad = 0;
     this->is_distructable = true;
+    this->name = name;
+}
+template <typename T>
+Variable<T>::Variable(T data, std::string name) {
+    this->data = data;
+    this->grad = 0;
+    this->is_distructable = false;
     this->name = name;
 }
 
