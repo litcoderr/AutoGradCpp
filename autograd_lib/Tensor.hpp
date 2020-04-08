@@ -122,7 +122,7 @@ void Tensor<T>::backward() {
 
 template <typename T>
 void Tensor<T>::backward(T grad){
-    this->grad += grad; // update this gradient
+    this->grad = grad; // update this gradient
     while(!this->op_stack.empty()){  // propagate through ops
         Heading<T>* heading = this->op_stack.top();
         T child_gradient = compute_grad(heading, grad);
