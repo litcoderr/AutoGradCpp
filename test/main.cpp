@@ -10,58 +10,59 @@
 #include <Optimizer.hpp>
 #include <Loss.hpp>
 
-Tensor<float>& model(Tensor<float>& input, WeightMap<float>& weights){
+Tensor<double>& model(Tensor<double>& input, WeightMap<double>& weights){
     // Dynamic Graph of Y = W*X+B
-    Tensor<float>& output = weights.get("Weight") * input + weights.get("Bias");
+    Tensor<double>& output = (weights.get("Weight") * input) + weights.get("Bias");
     return output;
 }
 
-float gt_function(float x){
+double gt_function(double x){
     return 15 * x + 3;
 }
 
 int main(){
+    // Hyper Parameters
+    double learning_rate = 0.0001;
+    int EPOCH = 1000;
+
     //Initialize Weights
-    Variable<float>& weight = *new Variable<float>(15, "Weight");  // Not Distructable
-    Variable<float>& bias = *new Variable<float>(10, "Bias");  // Not Distructable
+    Variable<double>& weight = *new Variable<double>(20, "Weight");  // Not Distructable
+    Variable<double>& bias = *new Variable<double>(4, "Bias");  // Not Distructable
     //Initialize WeightMap
-    std::vector<Tensor<float>*> weightList = {&weight, &bias};
-    WeightMap<float>& weightMap = *new WeightMap<float>(weightList);
+    std::vector<Tensor<double>*> weightList = {&weight, &bias};
+    WeightMap<double>& weightMap = *new WeightMap<double>(weightList);
     //Initialize Optimizer
-    float learning_rate = 0.001;
-    Optimizer<float> optim(&weightMap, learning_rate);
+    Optimizer<double> optim(&weightMap, learning_rate);
     // Initialize Loss
-    L2Loss<float> lossModule;
+    L2Loss<double> lossModule;
 
     // prepare dataset for testing
-    std::vector<std::pair<float, float>> dataset;
+    std::vector<std::pair<double, double>> dataset;
     for(int x=-10;x<11;x++){
-        dataset.push_back(std::make_pair(float(x), gt_function(float(x))));
+        dataset.push_back(std::make_pair(double(x), gt_function(double(x))));
     }
 
-    int EPOCH = 100;
     for(int epoch=0;epoch<EPOCH;epoch++){
-        Tensor<float>* total_loss = new Tensor<float>(0);
-        for(std::pair<float, float> data: dataset){
+        bool first = true;
+        for(std::pair<double, double> data: dataset){
             //Compute Through dynamic graph
-            Tensor<float>& x = *new Tensor<float>(data.first);
-            Tensor<float>& y = *new Tensor<float>(data.second);
+            Tensor<double>& x = *new Tensor<double>(data.first);
+            Tensor<double>& y = *new Tensor<double>(data.second);
 
-            Tensor<float>& y_ = model(x, weightMap);
+            Tensor<double>& y_ = model(x, weightMap);
 
-            Tensor<float>& loss = lossModule.forward(y_, y); // output, target
-
-            total_loss = &(*total_loss + loss);
+            Tensor<double>& loss = lossModule.forward(y_, y); // output, target
+            loss.backward();
+            if(first){
+                std::cout << "loss: " << loss.data << ", ";
+                std::cout << "weight: " << weight.data << ", ";
+                std::cout << "bias: " << bias.data << ", ";
+                std::cout << "bias_grad: " << bias.grad << std::endl;
+                first = false;
+            }
+            optim.step();
+            loss.flush();
         }
-        total_loss->backward();
-
-        std::cout << "loss: " << total_loss->data << ", ";
-        std::cout << "weight: " << weight.data << ", ";
-        std::cout << "bias: " << bias.data << ", ";
-        std::cout << "bias_grad: " << bias.grad << std::endl;
-
-        optim.step();
-        total_loss->flush();
     }
     return 0;
 }

@@ -12,15 +12,15 @@
 template <typename T>
 class Optimizer {
 public:
-    float lr; // learning rate
+    T lr; // learning rate
     WeightMap<T>* weights;  // weights
-    Optimizer(WeightMap<T>* weights, float lr);
+    Optimizer(WeightMap<T>* weights, T lr);
 
     void step();
 };
 
 template <typename T>
-Optimizer<T>::Optimizer(WeightMap<T>* weights, float lr){
+Optimizer<T>::Optimizer(WeightMap<T>* weights, T lr){
     this->lr = lr;
     this->weights = weights;
 }
