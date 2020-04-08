@@ -6,18 +6,39 @@
 #define AUTOGRADCPP_TENSOR_HPP
 
 #include <stack>
-#include <Operator.hpp>
 template <typename T> class Tensor;
 template <typename T> class Heading;
+
+enum Operator{
+    NO_OP,
+    ADD,
+    SUBTRACT,
+    MULTIPLY
+};
+
+template<typename T>
+T compute_grad(Heading<T>* heading, T prev_grad){
+    Operator op = heading->op;
+    if(op == ADD){
+        return prev_grad;
+    }else if(op == SUBTRACT){
+        return prev_grad;
+    }else if(op == MULTIPLY){
+        return prev_grad * heading->adj->data * prev_grad;
+    }else {
+        return 0;
+    }
+}
 
 template <typename T>
 class Heading{
 public:
+    Tensor<T>* from; // from which Tensor Node
     Tensor<T>* adj;  // Adjacent Heading Tensor Node
-    Tensor<T>* parent; // Parent Heading Tensor Node
+    Tensor<T>* to; // Parent Heading Tensor Node
     Operator op; // Heading Operation
 
-    Heading(Tensor<T>* adj, Tensor<T>* parent, Operator op);
+    Heading(Tensor<T>* from, Tensor<T>* adj, Tensor<T>* parent, Operator op);
 };
 
 template <typename T>
@@ -25,19 +46,25 @@ class Tensor{
 public:
     T data;  // data
     T grad;  // gradient
-    std::stack<Heading<T>> from; // head
+    std::stack<Heading<T>*> op_stack; // head
 
     Tensor();
     Tensor(T data);
 
+    void backward();  // default backward called from head node
+    void backward(T prev_grad);
+
     // Operator Overloading
     Tensor<T>& operator+(Tensor<T>& operand);  // Addition
+    Tensor<T>& operator-(Tensor<T>& operand);  // Subtraction
+    Tensor<T>& operator*(Tensor<T>& operand);  // Multiplication
 };
 
 template <typename T>
-Heading<T>::Heading(Tensor<T>* adj, Tensor<T>* parent, Operator op) {
+Heading<T>::Heading(Tensor<T>* from, Tensor<T>* adj, Tensor<T>* parent, Operator op) {
+    this->from = from;
     this->adj = adj;
-    this->parent = parent;
+    this->to = to;
     this->op = op;
 }
 
@@ -54,10 +81,56 @@ Tensor<T>::Tensor(T data){
     this->grad = 0;
 }
 
+template <typename T>
+void Tensor<T>::backward() {
+    this->backward(1);  // default gradient is 1
+}
+
+template <typename T>
+void Tensor<T>::backward(T grad){
+    this->grad += grad; // update this gradient
+    while(!this->op_stack.empty()){  // propagate through ops
+        Heading<T>* heading = this->op_stack.top();
+        T child_gradient = compute_grad(heading, grad);
+        heading->from->backward(child_gradient);
+        this->op_stack.pop();
+    }
+}
+
 // Operator Overloading
 template <typename T>
 Tensor<T>& Tensor<T>::operator+(Tensor<T> & operand) {
     Tensor<T>* nextTensor = new Tensor<T>(this->data+operand.data);
+    Heading<T>* head_1 = new Heading<T>(this, &operand, nextTensor, ADD);
+    Heading<T>* head_2 = new Heading<T>(&operand, this, nextTensor, ADD);
+
+    nextTensor->op_stack.push(head_1);
+    nextTensor->op_stack.push(head_2);
+
+    return *nextTensor;
+}
+
+template <typename T>
+Tensor<T>& Tensor<T>::operator-(Tensor<T> & operand) {
+    Tensor<T>* nextTensor = new Tensor<T>(this->data-operand.data);
+    Heading<T>* head_1 = new Heading<T>(this, &operand, nextTensor, SUBTRACT);
+    Heading<T>* head_2 = new Heading<T>(&operand, this, nextTensor, SUBTRACT);
+
+    nextTensor->op_stack.push(head_1);
+    nextTensor->op_stack.push(head_2);
+
+    return *nextTensor;
+}
+
+template <typename T>
+Tensor<T>& Tensor<T>::operator*(Tensor<T> & operand) {
+    Tensor<T>* nextTensor = new Tensor<T>(this->data*operand.data);
+    Heading<T>* head_1 = new Heading<T>(this, &operand, nextTensor, MULTIPLY);
+    Heading<T>* head_2 = new Heading<T>(&operand, this, nextTensor, MULTIPLY);
+
+    nextTensor->op_stack.push(head_1);
+    nextTensor->op_stack.push(head_2);
+
     return *nextTensor;
 }
 
