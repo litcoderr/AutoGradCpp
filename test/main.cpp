@@ -3,32 +3,32 @@
 //
 
 #include <iostream>
-#include <map>
-#include <string>
+#include <vector>
 #include <Tensor.hpp>
+#include <WeightMap.hpp>
 #include <Optimizer.hpp>
 
-Tensor<float>& model(Tensor<float>& input, std::map<std::string, Tensor<float>*>& weights){
+Tensor<float>& model(Tensor<float>& input, WeightMap<float>& weights){
     // Dynamic Graph of Y = W*X+B
-    Tensor<float>& output = *weights.find("Weight")->second * input + *weights.find("Bias")->second;
+    Tensor<float>& output = weights.get("Weight") * input + weights.get("Bias");
     return output;
 }
 
 int main(){
-    //TODO Need Memory Deletion process
+    //TODO Tensor / Variable
     //Initialize Weights
-    Tensor<float>& weight = *new Tensor<float>(2);
-    Tensor<float>& bias = *new Tensor<float>(3);
+    Tensor<float>& weight = *new Tensor<float>(2, "Weight");
+    Tensor<float>& bias = *new Tensor<float>(3, "Bias");
     //Initialize WeightMap
-    std::map<std::string, Tensor<float>*> weightMap;
-    weightMap.insert(std::make_pair("Weight", &weight));
-    weightMap.insert(std::make_pair("Bias", &bias));
+    std::vector<Tensor<float>*> weightList = {&weight, &bias};
+    WeightMap<float>& weightMap = *new WeightMap<float>(weightList);
+
     //Initialize Optimizer
     float learning_rate = 0.001;
     Optimizer<float> optim(&weightMap, learning_rate);
 
     //Compute Through dynamic graph
-    Tensor<float>& input = *new Tensor<float>(5, false);
+    Tensor<float>& input = *new Tensor<float>(5);
     Tensor<float>& result = model(input, weightMap);
 
     //BackPropagate
@@ -39,6 +39,5 @@ int main(){
 
     // Clear Memory
     result.flush();
-
     return 0;
 }

@@ -7,29 +7,30 @@
 
 #include <Tensor.hpp>
 #include <vector>
-#include <map>
+#include <WeightMap.hpp>
 
 template <typename T>
 class Optimizer {
 public:
     float lr; // learning rate
-    std::map<std::string, Tensor<T>*>* weights;  // weights
-    Optimizer(std::map<std::string, Tensor<T>*>* weights, float lr);
+    WeightMap<T>* weights;  // weights
+    Optimizer(WeightMap<T>* weights, float lr);
 
     void step();
 };
 
 template <typename T>
-Optimizer<T>::Optimizer(std::map<std::string, Tensor<T>*>* weights, float lr){
+Optimizer<T>::Optimizer(WeightMap<T>* weights, float lr){
     this->lr = lr;
     this->weights = weights;
 }
 
 template <typename T>
 void Optimizer<T>::step() {
-    for(typename std::map<std::string,Tensor<T>*>::iterator it=this->weights->begin(); it!=this->weights->end(); it++){
-        it->second->data -= this->lr * it->second->grad;
-        it->second->grad = 0; // Initialize gradient to 0
+    for(typename std::map<std::string,Tensor<T>*>::iterator it=this->weights->data.begin(); it!=this->weights->data.end(); it++){
+        Tensor<T>* currentTensor = it->second;
+        currentTensor->data -= this->lr * currentTensor->grad;
+        currentTensor->grad = 0; // Initialize gradient to 0
     }
 }
 
