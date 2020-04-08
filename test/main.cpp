@@ -56,8 +56,7 @@ int main(){
             if(first){
                 std::cout << "loss: " << loss.data << ", ";
                 std::cout << "weight: " << weight.data << ", ";
-                std::cout << "bias: " << bias.data << ", ";
-                std::cout << "bias_grad: " << bias.grad << std::endl;
+                std::cout << "bias: " << bias.data << "\n";
                 first = false;
             }
             optim.step();
