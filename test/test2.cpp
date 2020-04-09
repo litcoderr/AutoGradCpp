@@ -6,12 +6,13 @@
 #include <Tensor/Tensor.hpp>
 
 int main(){
-    Matrix<double>& x = *new Matrix<double>(3, 3, 1);
-    Matrix<double>& w = *new Matrix<double>(3, 3, 1, "Weight");
+    Matrix<double>& x = *new Matrix<double>(10, 3, 1);
+    Matrix<double>& w1 = *new Matrix<double>(3, 2, 3, "W1");
+    Matrix<double>& b1 = *new Matrix<double>(1, 2, 5, "B1");
 
     // TODO Implement Operators
     // TODO Implement Deletion
-    Matrix<double>& result = w + x;
-
+    Matrix<double>& result = x.matmul(w1).add(b1, 0);
+    result.print();
     return 0;
 }

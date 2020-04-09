@@ -23,7 +23,10 @@ public:
     bool isSameShape(Matrix<T>& operand);
 
     // Operator
-    Matrix<T>& operator+(Matrix<T>& operand);
+    Matrix<T>& operator+(Matrix<T>& operand);  // element-wise Addition
+    Matrix<T>& operator*(Matrix<T>& operand);  // element-wise Multiplication
+    Matrix<T>& matmul(Matrix<T>& operand);
+    Matrix<T>& add(Matrix<T>& operand, int axis = 0);  // axis-wise Addition
 };
 
 template <typename T>
@@ -97,5 +100,65 @@ Matrix<T>& Matrix<T>::operator+(Matrix<T>& operand){
     return resultMatrix;
 }
 
+template <typename T>
+Matrix<T>& Matrix<T>::operator*(Matrix<T> & operand) {
+    std::vector<std::vector<Tensor<T>*>> vec2d;
+    if(this->isSameShape(operand)){
+        for(int i=0; i<this->shape[0]; i++){
+            std::vector<Tensor<T>*> vec1d;
+            for(int j=0; j<this->shape[1]; j++){
+                Tensor<T>& temp_tensor = *this->data[i][j] * *operand.data[i][j];
+                vec1d.push_back(&temp_tensor);
+            }
+            vec2d.push_back(vec1d);
+        }
+    }else{
+        std::cout << "Shape Mismatch. [" << this->shape[0] << ", " << this->shape[1] << "] <--> [" << operand.shape[0] << ", " << operand.shape[1] << "]" << std::endl;
+        throw;
+    }
+    Matrix<T>& resultMatrix = *new Matrix<T>(vec2d);
+    return resultMatrix;
+}
+
+template <typename T>
+Matrix<T>& Matrix<T>::matmul(Matrix<T>& operand){
+    std::vector<std::vector<Tensor<T>*>> vec2d;
+    int dim1 = this->shape[0];
+    int dim2 = operand.shape[1];
+    if(this->shape[1] == operand.shape[0]){
+        for(int i=0;i<dim1;i++){
+            std::vector<Tensor<T>*> vec1d;
+            for(int j=0;j<dim2;j++){
+                Tensor<T>* newTensor = new Tensor<T>;
+                for(int k=0;k<this->shape[1];k++){
+                    Tensor<T>& mulTensor = *this->data[i][k] * *(operand.data[k][j]);
+                    newTensor = &(*newTensor + mulTensor);
+                }
+                vec1d.push_back(newTensor);
+            }
+            vec2d.push_back(vec1d);
+        }
+    }else{
+        std::cout << "MatMul Shape Mismatch. [" << this->shape[0] << ", " << this->shape[1] << "] <--> [" << operand.shape[0] << ", " << operand.shape[1] << "]" << std::endl;
+        throw;
+    }
+    Matrix<T>& resultMatrix = *new Matrix<T>(vec2d);
+    return resultMatrix;
+}
+
+template <typename T>
+Matrix<T>& Matrix<T>::add(Matrix<T> & operand, int axis) {
+    // expand by axis
+    int vec_axis = (axis==1)? 0 : 1;
+    std::vector<std::vector<Tensor<T>*>> vec2d;
+    if(operand.shape[axis]==1 && operand.shape[vec_axis] == this->shape[vec_axis]){
+        //TODO Implement extended addition
+    }else{
+        std::cout << "Axis: " << axis << " Addition Shape Mismatch. [" << this->shape[0] << ", " << this->shape[1] << "] <--> [" << operand.shape[0] << ", " << operand.shape[1] << "]" << std::endl;
+        throw;
+    }
+    Matrix<T>& resultMatrix = *new Matrix<T>(vec2d);
+    return resultMatrix;
+}
 
 #endif //AUTOGRADCPP_MATRIX_HPP

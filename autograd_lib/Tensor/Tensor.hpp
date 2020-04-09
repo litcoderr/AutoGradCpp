@@ -111,6 +111,7 @@ template<typename T>
 Tensor<T>::~Tensor(){
     while(!this->op_stack.empty()){
         delete this->op_stack.top();
+        this->op_stack.top() = NULL;
         this->op_stack.pop();
     }
 }
@@ -138,7 +139,9 @@ void Tensor<T>::flush() {
         heading->from->flush();
     }
     if(this->is_distructable){
+        Tensor<T>* this_ptr = this;
         delete this;
+        this_ptr = NULL;
     }
 }
 
