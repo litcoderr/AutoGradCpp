@@ -12,7 +12,7 @@ int main(){
 
     // TODO Implement Operators
     // TODO Implement Deletion
-    Matrix<double>& result = x.matmul(w1).add(b1, 0);
+    Matrix<double>& result = x.matmul(w1) + b1.expand(10, 0);
     result.print();
     return 0;
 }

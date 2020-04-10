@@ -21,12 +21,12 @@ public:
 
     void print();
     bool isSameShape(Matrix<T>& operand);
+    Matrix<T>& expand(int size, int axis = 0);
 
     // Operator
     Matrix<T>& operator+(Matrix<T>& operand);  // element-wise Addition
     Matrix<T>& operator*(Matrix<T>& operand);  // element-wise Multiplication
     Matrix<T>& matmul(Matrix<T>& operand);
-    Matrix<T>& add(Matrix<T>& operand, int axis = 0);  // axis-wise Addition
 };
 
 template <typename T>
@@ -147,18 +147,35 @@ Matrix<T>& Matrix<T>::matmul(Matrix<T>& operand){
 }
 
 template <typename T>
-Matrix<T>& Matrix<T>::add(Matrix<T> & operand, int axis) {
-    // expand by axis
-    int vec_axis = (axis==1)? 0 : 1;
-    std::vector<std::vector<Tensor<T>*>> vec2d;
-    if(operand.shape[axis]==1 && operand.shape[vec_axis] == this->shape[vec_axis]){
-        //TODO Implement extended addition
-    }else{
-        std::cout << "Axis: " << axis << " Addition Shape Mismatch. [" << this->shape[0] << ", " << this->shape[1] << "] <--> [" << operand.shape[0] << ", " << operand.shape[1] << "]" << std::endl;
+Matrix<T>& Matrix<T>::expand(int size, int axis) {
+    if(size < 1 || axis < 0 || axis > 1){
+        std::cout << "Expand: Invalid Size or Axis. Size: " << size << " Axis: " << axis;
         throw;
     }
-    Matrix<T>& resultMatrix = *new Matrix<T>(vec2d);
-    return resultMatrix;
+    // expand by axis
+    int vec_axis = (axis==1)? 0 : 1;
+    if(this->shape[axis]==1){
+        if(vec_axis == 0){  // vector is aligned with axis 0
+            for(int i=0;i<this->shape[0];i++){
+                for(int j=1;j<size;j++){
+                    this->data[i].push_back(this->data[i][0]);
+                }
+            }
+        }else{  // vector is aligned with axis 1
+            for(int i=1;i<size;i++){
+                std::vector<Tensor<T>*> vec1d;
+                for(int j=0;j<this->shape[1];j++){
+                    vec1d.push_back(this->data[0][j]);
+                }
+                this->data.push_back(vec1d);
+            }
+        }
+        this->shape[axis] = size;
+    }else{
+        std::cout << "Axis " << axis << " needs to be size of 1. Expand: Invalid Shape. [" << this->shape[0] << ", " << this->shape[1] << "]";
+        throw;
+    }
+    return *this;
 }
 
 #endif //AUTOGRADCPP_MATRIX_HPP
