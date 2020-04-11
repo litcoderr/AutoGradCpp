@@ -2,7 +2,10 @@
 > Auto Gradient Computation Framework (Pytorch Mock Version)
 
 ## Usage
-Example code can be viewed here -> [ExampleCode](https://github.com/litcoderr/AutoGradCpp/blob/master/test/main.cpp)
+Example code can be viewed here.
+
+1. Tensor node Test: [Code](https://github.com/litcoderr/AutoGradCpp/blob/master/test/test1.cpp)
+2. Matrix Test: [Code](https://github.com/litcoderr/AutoGradCpp/blob/master/test/test2.cpp)
 
 ### Tensor
 - Tensor node.
