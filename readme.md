@@ -72,7 +72,7 @@ WeightMap<double>& weightMap = *new WeightMap<double>(weight_list);  // Initiali
 
 #### Get Tensor
 ```c++
-Tensor<float>& weight_i_want = weightMap.get("Weight");  // use key std::string to retrieve reference
+Tensor<float>& weight_i_want = weightMap.getTensor("Weight");  // use key std::string to retrieve reference
 ```
 
 ### Optimizer

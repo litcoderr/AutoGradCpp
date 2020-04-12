@@ -12,6 +12,7 @@ template <typename T>
 class Matrix{
 public:
     int shape[2];
+    std::string name;
     bool isVariable;
     std::vector<std::vector<Tensor<T>*>> data;
 
@@ -22,9 +23,12 @@ public:
     void print();
     bool isSameShape(Matrix<T>& operand);
     Matrix<T>& expand(int size, int axis = 0);
+    void backward();
+    void flush();
 
     // Operator
     Matrix<T>& operator+(Matrix<T>& operand);  // element-wise Addition
+    Matrix<T>& operator-(Matrix<T>& operand);  // element-wise Subtraction
     Matrix<T>& operator*(Matrix<T>& operand);  // element-wise Multiplication
     Matrix<T>& matmul(Matrix<T>& operand);
 };
@@ -36,6 +40,7 @@ template <typename T>
 Matrix<T>::Matrix(int x, int y, T value, std::string name, bool isVariable) {  // for Variable
     this->shape[0] = x;
     this->shape[1] = y;
+    this->name = name;
     this->isVariable = isVariable;
     for(int i=0; i<this->shape[0]; i++){
         std::vector<Tensor<T>*> temp_vec;
@@ -87,6 +92,28 @@ Matrix<T>& Matrix<T>::operator+(Matrix<T>& operand){
             std::vector<Tensor<T>*> vec1d;
             for(int j=0; j<this->shape[1]; j++){
                 Tensor<T>& temp_tensor = *this->data[i][j] + *operand.data[i][j];
+                vec1d.push_back(&temp_tensor);
+            }
+            vec2d.push_back(vec1d);
+        }
+    }else{
+        std::cout << "Shape Mismatch. [" << this->shape[0] << ", " << this->shape[1] << "] <--> [" << operand.shape[0] << ", " << operand.shape[1] << "]" << std::endl;
+        throw;
+    }
+
+    Matrix<T>& resultMatrix = *new Matrix<T>(vec2d);
+    return resultMatrix;
+}
+
+template <typename T>
+Matrix<T>& Matrix<T>::operator-(Matrix<T>& operand){
+    std::vector<std::vector<Tensor<T>*>> vec2d;
+
+    if(this->isSameShape(operand)){
+        for(int i=0; i<this->shape[0]; i++){
+            std::vector<Tensor<T>*> vec1d;
+            for(int j=0; j<this->shape[1]; j++){
+                Tensor<T>& temp_tensor = *this->data[i][j] - *operand.data[i][j];
                 vec1d.push_back(&temp_tensor);
             }
             vec2d.push_back(vec1d);
@@ -176,6 +203,24 @@ Matrix<T>& Matrix<T>::expand(int size, int axis) {
         throw;
     }
     return *this;
+}
+
+template <typename T>
+void Matrix<T>::backward() {
+    for(int i=0;i<shape[0];i++){
+        for(int j=0;j<shape[1];j++){
+            this->data[i][j]->backward();
+        }
+    }
+}
+
+template <typename T>
+void Matrix<T>::flush() {
+    for(int i=0;i<shape[0];i++){
+        for(int j=0;j<shape[1];j++){
+            this->data[i][j]->flush();
+        }
+    }
 }
 
 #endif //AUTOGRADCPP_MATRIX_HPP

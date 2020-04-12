@@ -136,6 +136,7 @@ template <typename T>
 void Tensor<T>::flush() {
     while(!this->op_stack.empty()){
         Heading<T>* heading = this->op_stack.top();
+        this->op_stack.pop();
         heading->from->flush();
     }
     if(this->is_distructable){

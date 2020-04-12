@@ -27,7 +27,7 @@ Optimizer<T>::Optimizer(WeightMap<T>* weights, T lr){
 
 template <typename T>
 void Optimizer<T>::step() {
-    for(typename std::map<std::string,Tensor<T>*>::iterator it=this->weights->data.begin(); it!=this->weights->data.end(); it++){
+    for(typename std::map<std::string,Tensor<T>*>::iterator it=this->weights->tensor.begin(); it != this->weights->tensor.end(); it++){
         Tensor<T>* currentTensor = it->second;
         currentTensor->data -= this->lr * currentTensor->grad;
         currentTensor->grad = 0; // Initialize gradient to 0

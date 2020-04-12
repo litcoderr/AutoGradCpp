@@ -8,11 +8,11 @@
 #include <Tensor/Tensor.hpp>
 #include <WeightMap.hpp>
 #include <Optimizer.hpp>
-#include <Loss.hpp>
+#include <Loss/L2Loss.hpp>
 
 Tensor<double>& model(Tensor<double>& input, WeightMap<double>& weights){
     // Dynamic Graph of Y = W*X+B
-    Tensor<double>& output = (weights.get("Weight") * input) + weights.get("Bias");
+    Tensor<double>& output = (weights.getTensor("Weight") * input) + weights.getTensor("Bias");
     return output;
 }
 
@@ -35,7 +35,7 @@ int main(){
     //Initialize Optimizer
     Optimizer<double> optim(&weightMap, learning_rate);
     // Initialize Loss
-    L2Loss<double> lossModule;
+    SquaredDiff<double> lossModule;
 
     // prepare dataset for testing
     std::vector<std::pair<double, double>> dataset;
